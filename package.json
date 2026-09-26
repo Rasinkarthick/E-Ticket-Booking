@@ -1,0 +1,14 @@
+{
+  "name": "e-ticket-booking-platform",
+  "version": "1.0.0",
+  "description": "Full-Stack E-Ticket Booking System with React, Node.js, Express, and MongoDB",
+  "scripts": {
+    "start:backend": "npm --prefix backend start",
+    "start:frontend": "npm --prefix frontend dev",
+    "dev:backend": "npm --prefix backend dev",
+    "dev:frontend": "npm --prefix frontend dev",
+    "seed": "npm --prefix backend run seed",
+    "build:frontend": "npm --prefix frontend run build"
+  },
+  "keywords": ["react", "express", "mongodb", "eticket", "railway"]
+}
