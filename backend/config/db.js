@@ -8,14 +8,21 @@ const connectDB = async () => {
   }
   const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/eticket_db';
 
+  const isRemote = uri.includes('mongodb+srv://') || process.env.VERCEL;
+  const timeoutMs = isRemote ? 10000 : 2500;
+
   try {
-    // Attempt local or provided MongoDB with 2000ms server selection timeout
-    console.log(`[DB] Attempting connection to MongoDB at: ${uri}`);
+    console.log(`[DB] Attempting connection to MongoDB at: ${uri.replace(/\/\/.*@/, '//***:***@')}`);
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 2500
+      serverSelectionTimeoutMS: timeoutMs
     });
     console.log(`[DB] Successfully connected to MongoDB: ${mongoose.connection.host}:${mongoose.connection.port}/${mongoose.connection.name}`);
   } catch (err) {
+    if (process.env.VERCEL) {
+      console.error(`[DB] Cloud MongoDB connection failed: ${err.message}`);
+      throw err;
+    }
+
     console.warn(`[DB] Standard MongoDB connection failed (${err.message}). Initializing embedded MongoMemoryServer fallback...`);
 
     try {

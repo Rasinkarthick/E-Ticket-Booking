@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Full-Stack E-Ticket Booking System with React, Node.js, Express, and MongoDB",
   "scripts": {
+    "build": "npm --prefix frontend run build",
     "start:backend": "npm --prefix backend start",
     "start:frontend": "npm --prefix frontend dev",
     "dev:backend": "npm --prefix backend dev",
