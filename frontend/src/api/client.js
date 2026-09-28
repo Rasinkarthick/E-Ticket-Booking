@@ -1,5 +1,5 @@
-// API Base URL - works directly with Vite proxy or port 5000
-const API_BASE = 'http://localhost:5000/api';
+// API Base URL - works directly with Vite proxy in dev or relative path on Vercel
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('railpass_token');
