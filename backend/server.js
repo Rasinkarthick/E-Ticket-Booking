@@ -16,6 +16,26 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Serverless DB connection middleware (ensures DB is ready on Vercel)
+let dbPromise = null;
+app.use(async (req, res, next) => {
+  if (!dbPromise) {
+    dbPromise = connectDB()
+      .then(() => seedDatabase())
+      .catch(err => {
+        dbPromise = null;
+        throw err;
+      });
+  }
+  try {
+    await dbPromise;
+    next();
+  } catch (err) {
+    console.error('Database connection error:', err);
+    res.status(500).json({ success: false, message: 'Database initialization error' });
+  }
+});
+
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const trainRoutes = require('./routes/trainRoutes');
@@ -45,7 +65,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Initialize DB and start server
+// Initialize DB and start server locally
 const startServer = async () => {
   try {
     await connectDB();
@@ -63,4 +83,8 @@ const startServer = async () => {
   }
 };
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+module.exports = app;
