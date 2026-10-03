@@ -2,18 +2,24 @@ const mongoose = require('mongoose');
 
 let mongoMemoryServer = null;
 
+const DEFAULT_CLOUD_URI = 'mongodb+srv://rasinkarthicksubramanian_db_user:1qR2z7gv4PraAnps@cluster0.jatylq0.mongodb.net/eticket_db?retryWrites=true&w=majority&appName=Cluster0';
+
 const connectDB = async () => {
   if (mongoose.connection.readyState === 1) {
     return;
   }
-  if (process.env.VERCEL && !process.env.MONGODB_URI) {
-    throw new Error('MONGODB_URI environment variable is missing on Vercel. Please add your MongoDB Atlas connection string in your Vercel Project Settings > Environment Variables.');
+
+  let uri = process.env.MONGODB_URI || DEFAULT_CLOUD_URI;
+
+  // Normalize Atlas URI: ensure /eticket_db database name is present
+  if (uri.startsWith('mongodb+srv://') && !uri.includes('.mongodb.net/')) {
+    uri = uri.replace('.mongodb.net', '.mongodb.net/eticket_db?retryWrites=true&w=majority&appName=Cluster0');
+  } else if (uri.endsWith('.mongodb.net/')) {
+    uri = uri + 'eticket_db?retryWrites=true&w=majority&appName=Cluster0';
   }
 
-  const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/eticket_db';
-
   const isRemote = uri.includes('mongodb+srv://') || process.env.VERCEL;
-  const timeoutMs = isRemote ? 10000 : 2500;
+  const timeoutMs = isRemote ? 15000 : 2500;
 
   try {
     console.log(`[DB] Attempting connection to MongoDB at: ${uri.replace(/\/\/.*@/, '//***:***@')}`);

@@ -4,6 +4,9 @@ const dotenv = require('dotenv');
 const { connectDB } = require('./config/db');
 const { seedDatabase } = require('./seed/seeder');
 
+const path = require('path');
+dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 dotenv.config();
 
 const app = express();
