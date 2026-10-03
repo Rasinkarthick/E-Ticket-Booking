@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 let mongoMemoryServer = null;
 
 const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) {
+  if (mongoose.connection.readyState === 1) {
     return;
   }
   if (process.env.VERCEL && !process.env.MONGODB_URI) {
