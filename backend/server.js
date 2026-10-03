@@ -19,6 +19,31 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Health check & API Root (always accessible for diagnostics)
+app.get(['/', '/api', '/api/health'], async (req, res) => {
+  const mongoose = require('mongoose');
+  let dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  let dbError = null;
+
+  if (dbStatus !== 'connected') {
+    try {
+      await connectDB();
+      dbStatus = 'connected';
+    } catch (err) {
+      dbError = err.message;
+    }
+  }
+
+  res.json({
+    status: dbStatus === 'connected' ? 'online' : 'degraded',
+    service: 'E-Ticket Booking REST API',
+    database: dbStatus,
+    databaseName: mongoose.connection.name || 'eticket_db',
+    ...(dbError ? { dbError } : {}),
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Serverless DB connection middleware (ensures DB is ready on Vercel)
 let dbPromise = null;
 app.use(async (req, res, next) => {
@@ -53,17 +78,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/trains', trainRoutes);
 app.use('/api/passenger', passengerRoutes);
 app.use('/api/admin', adminRoutes);
-
-// Health check & API Root
-app.get(['/', '/api', '/api/health'], (req, res) => {
-  const mongoose = require('mongoose');
-  res.json({
-    status: 'online',
-    timestamp: new Date().toISOString(),
-    service: 'E-Ticket Booking REST API',
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
-  });
-});
 
 // Global Error Handler
 app.use((err, req, res, next) => {

@@ -9,22 +9,29 @@ const connectDB = async () => {
     return;
   }
 
-  let uri = process.env.MONGODB_URI || DEFAULT_CLOUD_URI;
+  let uri = (process.env.MONGODB_URI || DEFAULT_CLOUD_URI).trim();
+
+  // Strip accidental quotes that might have been copied from .env
+  uri = uri.replace(/^["']|["']$/g, '').trim();
 
   // Normalize Atlas URI: ensure /eticket_db database name is present
-  if (uri.startsWith('mongodb+srv://') && !uri.includes('.mongodb.net/')) {
+  if (uri.includes('.mongodb.net/?')) {
+    uri = uri.replace('.mongodb.net/?', '.mongodb.net/eticket_db?');
+  } else if (uri.startsWith('mongodb+srv://') && !uri.includes('.mongodb.net/')) {
     uri = uri.replace('.mongodb.net', '.mongodb.net/eticket_db?retryWrites=true&w=majority&appName=Cluster0');
   } else if (uri.endsWith('.mongodb.net/')) {
     uri = uri + 'eticket_db?retryWrites=true&w=majority&appName=Cluster0';
   }
 
   const isRemote = uri.includes('mongodb+srv://') || process.env.VERCEL;
-  const timeoutMs = isRemote ? 15000 : 2500;
+  // Use 8000ms on Vercel so it fails before Vercel's 10-15s function timeout limit
+  const timeoutMs = isRemote ? 8000 : 2500;
 
   try {
     console.log(`[DB] Attempting connection to MongoDB at: ${uri.replace(/\/\/.*@/, '//***:***@')}`);
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: timeoutMs
+      serverSelectionTimeoutMS: timeoutMs,
+      connectTimeoutMS: timeoutMs
     });
     console.log(`[DB] Successfully connected to MongoDB: ${mongoose.connection.host}:${mongoose.connection.port}/${mongoose.connection.name}`);
   } catch (err) {
