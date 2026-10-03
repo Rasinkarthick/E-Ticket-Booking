@@ -32,7 +32,11 @@ app.use(async (req, res, next) => {
     next();
   } catch (err) {
     console.error('Database connection error:', err);
-    res.status(500).json({ success: false, message: 'Database initialization error' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Database initialization error',
+      error: err.message 
+    });
   }
 });
 
@@ -47,12 +51,14 @@ app.use('/api/trains', trainRoutes);
 app.use('/api/passenger', passengerRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Health check
-app.get('/api/health', (req, res) => {
+// Health check & API Root
+app.get(['/', '/api', '/api/health'], (req, res) => {
+  const mongoose = require('mongoose');
   res.json({
     status: 'online',
     timestamp: new Date().toISOString(),
-    service: 'E-Ticket Booking REST API'
+    service: 'E-Ticket Booking REST API',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
 

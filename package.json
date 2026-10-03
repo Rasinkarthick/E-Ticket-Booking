@@ -2,14 +2,33 @@
   "name": "e-ticket-booking-platform",
   "version": "1.0.0",
   "description": "Full-Stack E-Ticket Booking System with React, Node.js, Express, and MongoDB",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
     "build": "npm --prefix frontend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "start": "node backend/server.js",
     "start:backend": "npm --prefix backend start",
     "start:frontend": "npm --prefix frontend dev",
     "dev:backend": "npm --prefix backend dev",
     "dev:frontend": "npm --prefix frontend dev",
-    "seed": "npm --prefix backend run seed",
-    "build:frontend": "npm --prefix frontend run build"
+    "seed": "npm --prefix backend run seed"
   },
-  "keywords": ["react", "express", "mongodb", "eticket", "railway"]
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.5"
+  },
+  "keywords": [
+    "react",
+    "express",
+    "mongodb",
+    "eticket",
+    "railway"
+  ]
 }

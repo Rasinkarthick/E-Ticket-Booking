@@ -6,6 +6,10 @@ const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) {
     return;
   }
+  if (process.env.VERCEL && !process.env.MONGODB_URI) {
+    throw new Error('MONGODB_URI environment variable is missing on Vercel. Please add your MongoDB Atlas connection string in your Vercel Project Settings > Environment Variables.');
+  }
+
   const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/eticket_db';
 
   const isRemote = uri.includes('mongodb+srv://') || process.env.VERCEL;
