@@ -1,4 +1,4 @@
-// API Base URL - works directly with Vite proxy in dev or relative path on Vercel
+// API Base URL - works directly with Vite proxy in dev or custom backend URL
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const getAuthHeaders = () => {

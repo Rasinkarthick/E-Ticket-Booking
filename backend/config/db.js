@@ -3,20 +3,18 @@ const mongoose = require('mongoose');
 let mongoMemoryServer = null;
 
 const DEFAULT_LOCAL_URI = 'mongodb://127.0.0.1:27017/eticket_db';
-const DEFAULT_CLOUD_URI = 'mongodb+srv://rasinkarthicksubramanian_db_user:1qR2z7gv4PraAnps@cluster0.jatylq0.mongodb.net/eticket_db?retryWrites=true&w=majority&appName=Cluster0';
 
 const connectDB = async () => {
   if (mongoose.connection.readyState === 1) {
     return;
   }
 
-  const defaultUri = process.env.VERCEL ? DEFAULT_CLOUD_URI : DEFAULT_LOCAL_URI;
-  let uri = (process.env.MONGODB_URI || defaultUri).trim();
+  let uri = (process.env.MONGODB_URI || DEFAULT_LOCAL_URI).trim();
 
   // Strip accidental quotes that might have been copied from .env
   uri = uri.replace(/^["']|["']$/g, '').trim();
 
-  // Normalize Atlas URI: ensure /eticket_db database name is present
+  // Normalize Atlas URI if provided: ensure /eticket_db database name is present
   if (uri.includes('.mongodb.net/?')) {
     uri = uri.replace('.mongodb.net/?', '.mongodb.net/eticket_db?');
   } else if (uri.startsWith('mongodb+srv://') && !uri.includes('.mongodb.net/')) {
@@ -25,8 +23,7 @@ const connectDB = async () => {
     uri = uri + 'eticket_db?retryWrites=true&w=majority&appName=Cluster0';
   }
 
-  const isRemote = uri.includes('mongodb+srv://') || process.env.VERCEL;
-  // Use 8000ms on Vercel so it fails before Vercel's 10-15s function timeout limit
+  const isRemote = uri.includes('mongodb+srv://');
   const timeoutMs = isRemote ? 8000 : 2500;
 
   try {
@@ -37,11 +34,6 @@ const connectDB = async () => {
     });
     console.log(`[DB] Successfully connected to MongoDB: ${mongoose.connection.host}:${mongoose.connection.port}/${mongoose.connection.name}`);
   } catch (err) {
-    if (process.env.VERCEL) {
-      console.error(`[DB] Cloud MongoDB connection failed: ${err.message}`);
-      throw err;
-    }
-
     console.warn(`[DB] Standard MongoDB connection failed (${err.message}). Initializing embedded MongoMemoryServer fallback...`);
 
     try {
