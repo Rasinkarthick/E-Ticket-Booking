@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 let mongoMemoryServer = null;
 
+const DEFAULT_LOCAL_URI = 'mongodb://127.0.0.1:27017/eticket_db';
 const DEFAULT_CLOUD_URI = 'mongodb+srv://rasinkarthicksubramanian_db_user:1qR2z7gv4PraAnps@cluster0.jatylq0.mongodb.net/eticket_db?retryWrites=true&w=majority&appName=Cluster0';
 
 const connectDB = async () => {
@@ -9,7 +10,8 @@ const connectDB = async () => {
     return;
   }
 
-  let uri = (process.env.MONGODB_URI || DEFAULT_CLOUD_URI).trim();
+  const defaultUri = process.env.VERCEL ? DEFAULT_CLOUD_URI : DEFAULT_LOCAL_URI;
+  let uri = (process.env.MONGODB_URI || defaultUri).trim();
 
   // Strip accidental quotes that might have been copied from .env
   uri = uri.replace(/^["']|["']$/g, '').trim();
